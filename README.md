@@ -32,6 +32,47 @@ View a single example:
 PYTHONPATH=src python -m research_assistant.cli "How does retrieval augmented generation reduce hallucination?"
 ```
 
+## Optional LLM Mode
+
+The project can also use OpenAI models for the single-agent writer, summarization agent, orchestrator, and fact-checking agent.
+
+```bash
+cp .env.example .env
+# Then edit .env and set OPENAI_API_KEY.
+
+PYTHONPATH=src python -m research_assistant.cli \
+  "How does retrieval augmented generation reduce hallucination?" \
+  --llm-provider openai \
+  --model gpt-5.1
+```
+
+Run the full benchmark with LLM-generated answers:
+
+```bash
+PYTHONPATH=src python -m research_assistant.run_benchmark \
+  --dataset data/questions.json \
+  --out results/benchmark-openai.json \
+  --llm-provider openai \
+  --model gpt-5.1
+```
+
+You can also use different models for different agents:
+
+```bash
+PYTHONPATH=src python -m research_assistant.run_benchmark \
+  --dataset data/questions.json \
+  --out results/benchmark-openai-mixed.json \
+  --llm-provider openai \
+  --single-model gpt-5.1 \
+  --summarizer-model gpt-5-mini \
+  --orchestrator-model gpt-5.1 \
+  --fact-checker-model gpt-5.1
+```
+
+`--model` acts as the default for every LLM-backed agent. The role-specific flags override it. Use model ids that are available for your OpenAI account.
+
+Keep `--llm-provider local` for fully deterministic, no-cost runs.
+
 ## Project Layout
 
 ```text
@@ -43,6 +84,7 @@ docs/
   methodology.md     Experimental design and evaluation plan
 src/research_assistant/
   agents.py          Search, summarization, fact-checking, and baseline agents
+  llm.py             Optional OpenAI Responses API integration
   orchestrator.py    Multi-agent workflow
   evaluation.py      Benchmark metrics
   run_benchmark.py   CLI benchmark runner

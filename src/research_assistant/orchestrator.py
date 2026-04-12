@@ -1,16 +1,25 @@
 from __future__ import annotations
 
-from .agents import FactCheckingAgent, SearchAgent, SummarizationAgent
+from .agents import FactCheckingAgent, SearchAgent, SummarizationAgent, format_evidence
+from .llm import LLMClient
 from .models import Document, ResearchAnswer
 
 
 class ResearchOrchestrator:
     """Coordinates specialized agents for the multi-agent research workflow."""
 
-    def __init__(self, corpus: list[Document]):
+    def __init__(
+        self,
+        corpus: list[Document],
+        llm: LLMClient | None = None,
+        summarizer_llm: LLMClient | None = None,
+        orchestrator_llm: LLMClient | None = None,
+        fact_checker_llm: LLMClient | None = None,
+    ):
+        self.llm = orchestrator_llm or llm
         self.search_agent = SearchAgent(corpus)
-        self.summarization_agent = SummarizationAgent()
-        self.fact_checking_agent = FactCheckingAgent()
+        self.summarization_agent = SummarizationAgent(llm=summarizer_llm or llm)
+        self.fact_checking_agent = FactCheckingAgent(llm=fact_checker_llm or llm)
 
     def answer(self, question: str) -> ResearchAnswer:
         evidence = self.search_agent.search(question, top_k=4)
@@ -19,6 +28,8 @@ class ResearchOrchestrator:
 
         if not notes:
             draft = "I could not find enough evidence to answer confidently."
+        elif self.llm:
+            draft = self._synthesize_with_llm(question, notes, evidence)
         else:
             draft = self._synthesize(question, notes)
 
@@ -43,3 +54,19 @@ class ResearchOrchestrator:
             clean_notes.append(f"{text} {source}]")
 
         return " ".join(clean_notes)
+
+    def _synthesize_with_llm(self, question: str, notes: list[str], evidence) -> str:
+        note_text = "\n".join(f"- {note}" for note in notes)
+        return self.llm.complete(
+            system=(
+                "You are the orchestrator for a multi-agent research assistant. "
+                "Write a concise answer using the summarizer notes and the original evidence. "
+                "Every factual sentence should cite source ids in square brackets. "
+                "Do not use information outside the evidence."
+            ),
+            user=(
+                f"Question: {question}\n\n"
+                f"Summarizer notes:\n{note_text}\n\n"
+                f"Original evidence:\n{format_evidence(evidence)}"
+            ),
+        )

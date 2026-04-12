@@ -21,6 +21,11 @@ The orchestrated system runs four stages:
 
 The prototype uses `data/questions.json`, a small benchmark of research questions paired with reference answers and expected source ids. The corpus is stored in `data/corpus.json`.
 
+The implementation supports two execution modes:
+
+- Local deterministic mode, used for reproducible no-cost experiments.
+- OpenAI LLM mode, used to test the same orchestration structure with generated summaries, answers, and fact-check labels.
+
 For the final project, expand the benchmark to 8-15 questions covering:
 
 - retrieval augmented generation,
