@@ -1,0 +1,50 @@
+[
+  {
+    "id": "rag_001",
+    "title": "Retrieval Augmented Generation",
+    "text": "Retrieval augmented generation reduces hallucination by grounding model answers in retrieved external documents. The model can cite evidence instead of relying only on parametric memory.",
+    "tags": ["rag", "hallucination", "retrieval"]
+  },
+  {
+    "id": "rag_002",
+    "title": "Limits of RAG",
+    "text": "RAG systems still fail when retrieval returns irrelevant or incomplete documents. Poor retrieval can cause the generator to produce incomplete answers or unsupported claims.",
+    "tags": ["rag", "retrieval", "limitations"]
+  },
+  {
+    "id": "agents_001",
+    "title": "Agent Specialization",
+    "text": "Specialized agents divide a complex workflow into narrower roles such as search, synthesis, planning, and verification. This can improve traceability because intermediate outputs are easier to inspect.",
+    "tags": ["agents", "specialization", "orchestration"]
+  },
+  {
+    "id": "agents_002",
+    "title": "Multi-Agent Risks",
+    "text": "Multi-agent systems can introduce coordination overhead and error propagation. Mistakes in an early search or summary step may affect all downstream agents.",
+    "tags": ["agents", "limitations", "coordination"]
+  },
+  {
+    "id": "eval_001",
+    "title": "Evaluating LLM Factuality",
+    "text": "Factuality evaluation often combines automatic metrics with human judgment. Citation checks, claim verification, and reference overlap are useful but incomplete proxies for answer quality.",
+    "tags": ["evaluation", "factuality", "metrics"]
+  },
+  {
+    "id": "eval_002",
+    "title": "Human Evaluation",
+    "text": "Human evaluation can assess correctness, completeness, clarity, and whether citations actually support the claims they accompany.",
+    "tags": ["evaluation", "human", "rubric"]
+  },
+  {
+    "id": "baseline_001",
+    "title": "Single-Agent Baselines",
+    "text": "A single-agent baseline is important because it tests whether gains come from agent specialization rather than from more context, more retrieval, or different prompts.",
+    "tags": ["baseline", "agents", "experiment"]
+  },
+  {
+    "id": "tools_001",
+    "title": "Tool Use in Research Assistants",
+    "text": "Research assistants often use tools for search, retrieval, summarization, and citation management. Tool outputs should be recorded so answers can be audited later.",
+    "tags": ["tools", "research", "auditability"]
+  }
+]

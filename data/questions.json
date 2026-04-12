@@ -1,0 +1,32 @@
+[
+  {
+    "id": "q1",
+    "question": "How does retrieval augmented generation reduce hallucination?",
+    "reference_answer": "Retrieval augmented generation reduces hallucination by grounding answers in external documents rather than relying only on the model's internal memory. However, it can still fail when retrieval returns irrelevant or incomplete evidence.",
+    "expected_sources": ["rag_001", "rag_002"]
+  },
+  {
+    "id": "q2",
+    "question": "Why might specialized agents improve research assistant quality?",
+    "reference_answer": "Specialized agents can split research into search, synthesis, planning, and verification roles. This makes intermediate outputs easier to inspect and can improve traceability.",
+    "expected_sources": ["agents_001", "tools_001"]
+  },
+  {
+    "id": "q3",
+    "question": "What are risks of multi-agent research systems?",
+    "reference_answer": "Multi-agent systems can add coordination overhead and error propagation. If search or summarization makes an early mistake, later agents may build on that error.",
+    "expected_sources": ["agents_002"]
+  },
+  {
+    "id": "q4",
+    "question": "How should the project evaluate factual accuracy?",
+    "reference_answer": "The project should combine automatic metrics such as citation checks, claim verification, and reference overlap with human judgment of correctness, completeness, clarity, and citation support.",
+    "expected_sources": ["eval_001", "eval_002"]
+  },
+  {
+    "id": "q5",
+    "question": "Why compare against a single-agent baseline?",
+    "reference_answer": "A single-agent baseline helps determine whether improvements come from specialization itself rather than more retrieval, more context, or different prompts.",
+    "expected_sources": ["baseline_001"]
+  }
+]
