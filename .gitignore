@@ -27,6 +27,9 @@ dist/
 results/*.json
 results/*.csv
 results/*.png
+results/**/*.json
+results/**/*.csv
+results/**/*.png
 !results/.gitkeep
 
 # Editor and OS files

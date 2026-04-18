@@ -17,6 +17,8 @@ def write_results_csv(report: dict, path: str | Path) -> None:
                 "citations": ";".join(example["citations"]),
                 "retrieved_sources": ";".join(example["retrieved_sources"]),
                 "expected_sources": ";".join(example["expected_sources"]),
+                "judge_rationale": example.get("judge_rationale", ""),
+                "judge_latency_seconds": example.get("judge_latency_seconds", 0.0),
                 "latency_seconds": example["latency_seconds"],
             }
             row.update(example["scores"])
@@ -57,7 +59,13 @@ def write_plots(report: dict, out_dir: str | Path) -> list[str]:
         _plot_unsupported_claims(report, output_dir, plt),
         _plot_claim_support(report, output_dir, plt),
     ]
+    if _has_metric(report, "judge_overall"):
+        paths.append(_plot_judge_scores(report, output_dir, plt))
     return [str(path) for path in paths]
+
+
+def _has_metric(report: dict, metric: str) -> bool:
+    return any(metric in scores for scores in report.get("summary", {}).values())
 
 
 def _plot_summary_metrics(report: dict, output_dir: Path, plt) -> Path:
@@ -177,6 +185,40 @@ def _plot_claim_support(report: dict, output_dir: Path, plt) -> Path:
     fig.tight_layout()
 
     path = output_dir / "claim_support.png"
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
+    return path
+
+
+def _plot_judge_scores(report: dict, output_dir: Path, plt) -> Path:
+    metrics = [
+        "judge_overall",
+        "judge_correctness",
+        "judge_completeness",
+        "judge_grounding",
+        "judge_clarity",
+        "judge_citation_usefulness",
+    ]
+    systems = list(report["summary"])
+    x = range(len(metrics))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(11, 5))
+    for offset, system in enumerate(systems):
+        values = [report["summary"][system].get(metric, 0.0) for metric in metrics]
+        positions = [index + (offset - 0.5) * width for index in x]
+        ax.bar(positions, values, width=width, label=system)
+
+    ax.set_title("LLM Judge Scores")
+    ax.set_ylabel("Score")
+    ax.set_ylim(0, 5.25)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels([metric.removeprefix("judge_").replace("_", "\n") for metric in metrics])
+    ax.legend()
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout()
+
+    path = output_dir / "judge_scores.png"
     fig.savefig(path, dpi=160)
     plt.close(fig)
     return path

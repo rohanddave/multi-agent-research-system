@@ -73,6 +73,64 @@ PYTHONPATH=src python -m research_assistant.run_benchmark \
 
 Keep `--llm-provider local` for fully deterministic, no-cost runs.
 
+## Optional LLM Judge
+
+Add an LLM-as-judge layer to score semantic quality with a blind rubric:
+
+```bash
+PYTHONPATH=src python -m research_assistant.run_benchmark \
+  --dataset data/questions.json \
+  --out results/benchmark-openai-judged.json \
+  --llm-provider openai \
+  --model gpt-5.1 \
+  --judge-provider openai \
+  --judge-model gpt-5.1
+```
+
+Judge scores are added as `judge_correctness`, `judge_completeness`, `judge_grounding`, `judge_clarity`, `judge_citation_usefulness`, and `judge_overall`. The judge is not told whether an answer came from the single-agent or multi-agent system.
+
+## Run All Experiments
+
+This command runs the local sanity check plus three OpenAI judged experiments and saves each run in its own folder under `results/`. The OpenAI runs make paid API calls.
+
+```bash
+mkdir -p \
+  results/exp0-local \
+  results/exp1-same-model-architecture-test \
+  results/exp2-mixed-model-cost-aware-test \
+  results/exp3-all-mini-test \
+&& PYTHONPATH=src python -m research_assistant.run_benchmark \
+  --dataset data/questions.json \
+  --out results/exp0-local/benchmark-local.json \
+&& PYTHONPATH=src python -m research_assistant.run_benchmark \
+  --dataset data/questions.json \
+  --out results/exp1-same-model-architecture-test/benchmark-openai-shared-gpt51-judged.json \
+  --llm-provider openai \
+  --model gpt-5.1 \
+  --judge-provider openai \
+  --judge-model gpt-5.1 \
+&& PYTHONPATH=src python -m research_assistant.run_benchmark \
+  --dataset data/questions.json \
+  --out results/exp2-mixed-model-cost-aware-test/benchmark-openai-mixed-cost-aware-judged.json \
+  --llm-provider openai \
+  --single-model gpt-5.1 \
+  --summarizer-model gpt-5-mini \
+  --orchestrator-model gpt-5.1 \
+  --fact-checker-model gpt-5.1 \
+  --judge-provider openai \
+  --judge-model gpt-5.1 \
+&& PYTHONPATH=src python -m research_assistant.run_benchmark \
+  --dataset data/questions.json \
+  --out results/exp3-all-mini-test/benchmark-openai-all-mini-judged.json \
+  --llm-provider openai \
+  --single-model gpt-5.1 \
+  --summarizer-model gpt-5-mini \
+  --orchestrator-model gpt-5-mini \
+  --fact-checker-model gpt-5-mini \
+  --judge-provider openai \
+  --judge-model gpt-5.1
+```
+
 ## Evaluation Outputs
 
 Each benchmark run writes:
@@ -84,8 +142,9 @@ Each benchmark run writes:
   - `latency.png`
   - `unsupported_claim_rate.png`
   - `claim_support.png`
+  - `judge_scores.png`, when `--judge-provider` is enabled.
 
-The evaluator compares systems using retrieval recall, citation precision, citation recall, claim support, unsupported claim rate, reference overlap, answer conciseness, overall score, and latency.
+The evaluator compares systems using retrieval recall, citation precision, citation recall, claim support, unsupported claim rate, reference overlap, answer conciseness, overall score, and latency. With judge mode enabled, it also records judge rationale and judge latency.
 
 ## Project Layout
 
@@ -118,6 +177,7 @@ The included evaluator reports:
 - `reference_overlap`: token overlap against the reference answer.
 - `answer_conciseness`: score for staying near a target answer length.
 - `latency_seconds`: runtime per question and system.
+- `judge_overall`: optional 1-5 semantic quality score from the LLM judge.
 - `overall`: aggregate quality score emphasizing citation quality, claim support, and reference overlap.
 
 These are lightweight proxy metrics for the project prototype. A stronger final report should add human evaluation for correctness, completeness, and citation usefulness.

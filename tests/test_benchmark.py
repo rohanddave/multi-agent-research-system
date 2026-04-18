@@ -1,4 +1,5 @@
 from research_assistant.run_benchmark import run_benchmark
+from research_assistant.judge import LLMJudge
 from research_assistant.llm import AgentModelConfig, OpenAIResponsesLLM, build_agent_llms, build_llm
 
 
@@ -40,3 +41,27 @@ def test_can_configure_different_models_per_agent():
     assert llms.summarizer.model == "summarizer-model"
     assert llms.orchestrator.model == "orchestrator-model"
     assert llms.fact_checker.model == "fact-checker-model"
+
+
+class FakeJudgeLLM:
+    def complete(self, system: str, user: str) -> str:
+        return """
+        {
+          "correctness": 4,
+          "completeness": 5,
+          "grounding": 4,
+          "clarity": 5,
+          "citation_usefulness": 4,
+          "overall": 4.4,
+          "rationale": "Good answer with useful citations."
+        }
+        """
+
+
+def test_llm_judge_parses_json_scores():
+    judge = LLMJudge(FakeJudgeLLM())
+    result = judge._parse_response(FakeJudgeLLM().complete("", ""))
+
+    assert result.scores["judge_correctness"] == 4
+    assert result.scores["judge_overall"] == 4.4
+    assert "useful citations" in result.rationale

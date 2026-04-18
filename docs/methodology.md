@@ -26,6 +26,8 @@ The implementation supports two execution modes:
 - Local deterministic mode, used for reproducible no-cost experiments.
 - OpenAI LLM mode, used to test the same orchestration structure with generated summaries, answers, and fact-check labels.
 
+An optional LLM-as-judge layer can score each answer with a blind rubric for correctness, completeness, grounding, clarity, citation usefulness, and overall quality. Judge scores are treated as semantic proxy metrics, not ground truth.
+
 For the final project, expand the benchmark to 8-15 questions covering:
 
 - retrieval augmented generation,

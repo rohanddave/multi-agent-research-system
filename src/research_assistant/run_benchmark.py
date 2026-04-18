@@ -7,7 +7,8 @@ from pathlib import Path
 
 from .agents import SearchAgent, SingleAgentBaseline
 from .evaluation import aggregate_scores, evaluate_answer
-from .llm import AgentModelConfig, build_agent_llms
+from .judge import LLMJudge
+from .llm import AgentModelConfig, build_agent_llms, build_llm
 from .orchestrator import ResearchOrchestrator
 from .reporting import write_plots, write_results_csv
 from .utils import load_corpus, load_questions
@@ -22,6 +23,8 @@ def run_benchmark(
     summarizer_model: str | None = None,
     orchestrator_model: str | None = None,
     fact_checker_model: str | None = None,
+    judge_provider: str = "none",
+    judge_model: str | None = None,
 ) -> dict:
     model_config = AgentModelConfig(
         default=model,
@@ -33,6 +36,14 @@ def run_benchmark(
     corpus = load_corpus(corpus_path)
     questions = load_questions(dataset_path)
     llms = build_agent_llms(llm_provider, model_config)
+    judge = None
+    effective_judge_model = judge_model
+    if judge_provider != "none":
+        judge_llm = build_llm(judge_provider, judge_model)
+        if judge_llm is not None:
+            effective_judge_model = getattr(judge_llm, "model", judge_model)
+            judge = LLMJudge(judge_llm)
+
     baseline = SingleAgentBaseline(SearchAgent(corpus), llm=llms.single)
     multi_agent = ResearchOrchestrator(
         corpus,
@@ -49,6 +60,20 @@ def run_benchmark(
             latency_seconds = time.perf_counter() - started
             expected_sources = row.get("expected_sources", [])
             scores = evaluate_answer(answer, row["reference_answer"], expected_sources)
+            judge_result = None
+            judge_latency_seconds = 0.0
+            if judge:
+                judge_started = time.perf_counter()
+                judge_result = judge.evaluate(
+                    question=row["question"],
+                    answer=answer.answer,
+                    reference_answer=row["reference_answer"],
+                    evidence=answer.evidence,
+                    expected_sources=expected_sources,
+                )
+                judge_latency_seconds = time.perf_counter() - judge_started
+                scores.update(judge_result.scores)
+                scores["judge_latency_seconds"] = judge_latency_seconds
             scores["latency_seconds"] = latency_seconds
             results[name].append(
                 {
@@ -60,6 +85,8 @@ def run_benchmark(
                     "expected_sources": expected_sources,
                     "supported_claims": answer.supported_claims,
                     "unsupported_claims": answer.unsupported_claims,
+                    "judge_rationale": judge_result.rationale if judge_result else "",
+                    "judge_latency_seconds": judge_latency_seconds,
                     "latency_seconds": latency_seconds,
                     "scores": scores,
                 }
@@ -74,7 +101,9 @@ def run_benchmark(
                 "summarizer": model_config.model_for("summarizer"),
                 "orchestrator": model_config.model_for("orchestrator"),
                 "fact_checker": model_config.model_for("fact_checker"),
+                "judge": effective_judge_model,
             },
+            "judge_provider": judge_provider,
             "num_questions": len(questions),
         },
         "summary": {
@@ -96,6 +125,8 @@ def main() -> None:
     parser.add_argument("--summarizer-model", default=None, help="Model for the summarization agent.")
     parser.add_argument("--orchestrator-model", default=None, help="Model for the multi-agent orchestrator.")
     parser.add_argument("--fact-checker-model", default=None, help="Model for the fact-checking agent.")
+    parser.add_argument("--judge-provider", choices=["none", "openai"], default="none")
+    parser.add_argument("--judge-model", default=None, help="Model for optional LLM-as-judge evaluation.")
     parser.add_argument("--no-plots", action="store_true", help="Skip matplotlib plot generation.")
     args = parser.parse_args()
 
@@ -108,6 +139,8 @@ def main() -> None:
         summarizer_model=args.summarizer_model,
         orchestrator_model=args.orchestrator_model,
         fact_checker_model=args.fact_checker_model,
+        judge_provider=args.judge_provider,
+        judge_model=args.judge_model,
     )
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
