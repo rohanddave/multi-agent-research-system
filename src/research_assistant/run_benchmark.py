@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from pathlib import Path
 
 from .agents import SearchAgent, SingleAgentBaseline
 from .evaluation import aggregate_scores, evaluate_answer
 from .llm import AgentModelConfig, build_agent_llms
 from .orchestrator import ResearchOrchestrator
+from .reporting import write_plots, write_results_csv
 from .utils import load_corpus, load_questions
 
 
@@ -21,18 +23,16 @@ def run_benchmark(
     orchestrator_model: str | None = None,
     fact_checker_model: str | None = None,
 ) -> dict:
+    model_config = AgentModelConfig(
+        default=model,
+        single=single_model,
+        summarizer=summarizer_model,
+        orchestrator=orchestrator_model,
+        fact_checker=fact_checker_model,
+    )
     corpus = load_corpus(corpus_path)
     questions = load_questions(dataset_path)
-    llms = build_agent_llms(
-        llm_provider,
-        AgentModelConfig(
-            default=model,
-            single=single_model,
-            summarizer=summarizer_model,
-            orchestrator=orchestrator_model,
-            fact_checker=fact_checker_model,
-        ),
-    )
+    llms = build_agent_llms(llm_provider, model_config)
     baseline = SingleAgentBaseline(SearchAgent(corpus), llm=llms.single)
     multi_agent = ResearchOrchestrator(
         corpus,
@@ -44,19 +44,39 @@ def run_benchmark(
     results = {"single": [], "multi": []}
     for row in questions:
         for name, system in [("single", baseline), ("multi", multi_agent)]:
+            started = time.perf_counter()
             answer = system.answer(row["question"])
-            scores = evaluate_answer(answer, row["reference_answer"])
+            latency_seconds = time.perf_counter() - started
+            expected_sources = row.get("expected_sources", [])
+            scores = evaluate_answer(answer, row["reference_answer"], expected_sources)
+            scores["latency_seconds"] = latency_seconds
             results[name].append(
                 {
                     "id": row["id"],
                     "question": row["question"],
                     "answer": answer.answer,
                     "citations": answer.citations,
+                    "retrieved_sources": [item.document.id for item in answer.evidence],
+                    "expected_sources": expected_sources,
+                    "supported_claims": answer.supported_claims,
+                    "unsupported_claims": answer.unsupported_claims,
+                    "latency_seconds": latency_seconds,
                     "scores": scores,
                 }
             )
 
     return {
+        "metadata": {
+            "llm_provider": llm_provider,
+            "models": {
+                "default": model_config.default,
+                "single": model_config.model_for("single"),
+                "summarizer": model_config.model_for("summarizer"),
+                "orchestrator": model_config.model_for("orchestrator"),
+                "fact_checker": model_config.model_for("fact_checker"),
+            },
+            "num_questions": len(questions),
+        },
         "summary": {
             "single": aggregate_scores(results["single"]),
             "multi": aggregate_scores(results["multi"]),
@@ -76,6 +96,7 @@ def main() -> None:
     parser.add_argument("--summarizer-model", default=None, help="Model for the summarization agent.")
     parser.add_argument("--orchestrator-model", default=None, help="Model for the multi-agent orchestrator.")
     parser.add_argument("--fact-checker-model", default=None, help="Model for the fact-checking agent.")
+    parser.add_argument("--no-plots", action="store_true", help="Skip matplotlib plot generation.")
     args = parser.parse_args()
 
     report = run_benchmark(
@@ -91,9 +112,17 @@ def main() -> None:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    csv_path = out_path.with_suffix(".csv")
+    write_results_csv(report, csv_path)
+    plot_paths = []
+    if not args.no_plots:
+        plot_paths = write_plots(report, out_path.parent)
 
     print(json.dumps(report["summary"], indent=2))
     print(f"\nWrote full report to {out_path}")
+    print(f"Wrote CSV results to {csv_path}")
+    for plot_path in plot_paths:
+        print(f"Wrote plot to {plot_path}")
 
 
 if __name__ == "__main__":

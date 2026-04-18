@@ -22,7 +22,7 @@ class ResearchOrchestrator:
         self.fact_checking_agent = FactCheckingAgent(llm=fact_checker_llm or llm)
 
     def answer(self, question: str) -> ResearchAnswer:
-        evidence = self.search_agent.search(question, top_k=4)
+        evidence = self.search_agent.search(question, top_k=4, min_score_ratio=0.55)
         notes = self.summarization_agent.summarize(question, evidence)
         citations = [item.document.id for item in evidence]
 

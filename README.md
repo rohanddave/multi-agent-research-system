@@ -73,6 +73,20 @@ PYTHONPATH=src python -m research_assistant.run_benchmark \
 
 Keep `--llm-provider local` for fully deterministic, no-cost runs.
 
+## Evaluation Outputs
+
+Each benchmark run writes:
+
+- JSON report: full outputs, scores, model metadata, citations, retrieved sources, and per-question latency.
+- CSV table: one row per question and system for spreadsheet analysis.
+- PNG plots:
+  - `summary_metrics.png`
+  - `latency.png`
+  - `unsupported_claim_rate.png`
+  - `claim_support.png`
+
+The evaluator compares systems using retrieval recall, citation precision, citation recall, claim support, unsupported claim rate, reference overlap, answer conciseness, overall score, and latency.
+
 ## Project Layout
 
 ```text
@@ -96,10 +110,15 @@ tests/
 
 The included evaluator reports:
 
-- `citation_coverage`: fraction of answer citations grounded in retrieved evidence.
-- `claim_support`: fraction of extracted answer claims supported by evidence.
+- `retrieval_recall`: fraction of expected sources retrieved.
+- `citation_precision`: fraction of citations that match expected sources.
+- `citation_recall`: fraction of expected sources cited.
+- `claim_support`: average lexical support for extracted answer claims.
+- `unsupported_claim_rate`: fraction of claims with weak evidence support.
 - `reference_overlap`: token overlap against the reference answer.
-- `overall`: mean of the three metrics.
+- `answer_conciseness`: score for staying near a target answer length.
+- `latency_seconds`: runtime per question and system.
+- `overall`: aggregate quality score emphasizing citation quality, claim support, and reference overlap.
 
 These are lightweight proxy metrics for the project prototype. A stronger final report should add human evaluation for correctness, completeness, and citation usefulness.
 

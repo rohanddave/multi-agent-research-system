@@ -1,0 +1,50 @@
+system,id,question,answer,citations,retrieved_sources,expected_sources,latency_seconds,citation_coverage,retrieval_recall,citation_precision,citation_recall,claim_support,unsupported_claim_rate,reference_overlap,answer_conciseness,overall
+single,q1,How does retrieval augmented generation reduce hallucination?,"Retrieval augmented generation (RAG) reduces hallucination by *grounding* the model’s answers in external documents rather than relying only on what is stored in its internal parameters. The system first retrieves relevant documents from an external knowledge source, then generates an answer that uses and can cite those documents as evidence. Because the answer is tied to concrete retrieved content, the model is less likely to invent unsupported facts. [rag_001]",rag_001,rag_001,rag_001;rag_002,2.209704459,1.0,0.5,1.0,0.5,0.3627039627039627,0.6666666666666666,0.6875,0.7888888888888889,0.5767074592074592
+single,q2,Why might specialized agents improve research assistant quality?,"Specialized agents can improve research assistant quality because they break a complex task into narrower roles (e.g., search, synthesis, planning, verification), making each step more focused and transparent. This division of labor improves traceability: intermediate outputs at each stage are easier to inspect, debug, and refine, which in turn leads to more reliable and higher-quality final results. [agents_001]",agents_001,agents_001,agents_001;tools_001,1.4022076660000007,1.0,0.5,1.0,0.5,0.4193349753694582,0.5,0.9047619047619048,0.6777777777777778,0.6648193760262726
+single,q3,What are risks of multi-agent research systems?,"Multi-agent research systems introduce several risks:
+
+1. **Coordination overhead**  
+   Orchestrating multiple agents (for search, summarization, critique, etc.) increases complexity and can slow work or fail if coordination logic is flawed. [agents_002]
+
+2. **Error propagation**  
+   If an early-stage agent (e.g., search or initial summarization) makes a mistake or misses key evidence, all downstream agents build on that faulty output, amplifying the initial error throughout the system. [agents_002]",agents_002,agents_002,agents_002,1.9580906250000005,1.0,1.0,1.0,1.0,0.38025415444770283,0.6666666666666666,0.875,0.7888888888888889,0.7177174975562073
+single,q4,How should the project evaluate factual accuracy?,"The project should evaluate factual accuracy using a combination of:
+
+1. **Automatic checks**  
+   - Run **citation checks** to see whether cited sources actually support the model’s statements.  
+   - Use **claim verification** tools (e.g., automated fact-checkers or entailment models) to test whether individual claims are supported or contradicted by reference documents.  
+   - Measure **reference overlap** (e.g., overlap between the model’s answer and a curated set of trusted references) as a rough proxy for alignment with known facts.  
+
+2. **Human judgment**  
+   - Have human evaluators review answers for correctness, paying particular attention to subtle errors that automatic metrics miss.  
+   - Use structured rubrics (e.g., rate each key claim as supported, unsupported, or contradicted by the evidence) rather than a single holistic score.
+
+Because citation checks, claim verification, and reference overlap are useful but incomplete proxies, they should be treated as aids to—but not substitutes for—careful human evaluation of factuality and overall answer quality. [eval_001]",eval_001,eval_001,eval_001;eval_002,2.963537875,1.0,0.5,1.0,0.5,0.21654489191656093,0.8571428571428571,0.8260869565217391,0.5769230769230769,0.5370977982590885
+single,q5,Why compare against a single-agent baseline?,"Compare against a single-agent baseline to isolate *where* performance gains are coming from. A single-agent baseline helps you check whether improvements are due to genuine benefits of having multiple specialized agents, rather than confounding factors like:
+
+- More total context being used  
+- More or different retrieval  
+- Different or richer prompts  
+
+By holding these factors constant and only varying the number of agents, you can see if multi-agent specialization itself is responsible for the gains. [baseline_001]",baseline_001,baseline_001,baseline_001,1.8257142080000008,1.0,1.0,1.0,1.0,0.36522911051212936,1.0,0.9,0.8666666666666667,0.6530458221024259
+multi,q1,How does retrieval augmented generation reduce hallucination?,"Retrieval augmented generation (RAG) reduces hallucination by *grounding* the model’s answers in external documents retrieved at query time, so the model can base its responses on this evidence instead of relying only on its internal (parametric) memory. This lets it cite specific supporting documents and stay closer to verifiable information rather than inventing details.[rag_001]
+
+However, if the retrieval step returns irrelevant or incomplete documents, the system can still produce incomplete or unsupported claims, so hallucinations are reduced but not eliminated and depend heavily on retrieval quality.[rag_002] Fact-check note: some claims need stronger evidence.",rag_001;rag_002,rag_001;rag_002,rag_001;rag_002,6.157460458000001,1.0,1.0,1.0,1.0,0.5129411764705882,0.5,0.9375,0.9090909090909091,0.7900882352941176
+multi,q2,Why might specialized agents improve research assistant quality?,"Specialized agents can improve a research assistant’s quality by breaking the overall task into narrower roles—such as search, synthesis, planning, and verification—so each step is handled by an agent optimized for that specific function. This division makes intermediate outputs more transparent and easier to inspect, which improves traceability and helps identify and correct errors earlier in the workflow. [agents_001]
+
+Because research assistants also rely on tools for search, retrieval, summarization, and citation management, recording the outputs of these tools in each specialized stage further supports auditing and quality control of the final answer. [tools_001][agents_001]
+
+To be confident that specialization is what improves quality (rather than side effects like more context or different prompts), comparisons against a single-agent baseline are necessary. [baseline_001]",agents_001;baseline_001;tools_001,agents_001;baseline_001;tools_001,agents_001;tools_001,9.308497415999998,1.0,1.0,0.6666666666666666,1.0,0.509006734006734,0.25,0.9523809523809523,0.6923076923076923,0.7756108706108706
+multi,q3,What are risks of multi-agent research systems?,"Multi-agent research systems carry at least two key risks:
+
+1. **Coordination overhead** – Managing communication and task division among multiple agents can add complexity and slow down the overall process. [agents_002]
+
+2. **Error propagation** – If an early agent (e.g., performing search or initial summarization) makes a mistake, that error can cascade through all subsequent agents and contaminate the final output. [agents_002]",agents_002,agents_002,agents_002,6.6183260829999995,1.0,1.0,1.0,1.0,0.31445406445406443,1.0,0.8333333333333334,0.7111111111111111,0.6295574795574795
+multi,q4,How should the project evaluate factual accuracy?,"The project should use a hybrid evaluation approach that combines automatic metrics with human judgment. Automatic checks like citation validation, claim verification, and reference overlap can serve as helpful but incomplete proxies for factual quality. [eval_001]
+
+Human evaluators should then assess responses for:
+- Correctness of the information  
+- Completeness relative to the question  
+- Clarity of the explanation  
+- Whether each citation genuinely supports the claim it is attached to. [eval_002] Fact-check note: some claims need stronger evidence.",eval_001;eval_002,eval_001;eval_002,eval_001;eval_002,13.085988791000002,1.0,1.0,1.0,1.0,0.4357371794871795,0.5,0.8695652173913043,0.8666666666666667,0.7610604793756968
+multi,q5,Why compare against a single-agent baseline?,"A single-agent baseline is used to verify that any performance improvements in a multi-agent system actually come from agent specialization, and not just from side effects like having more context, more retrieval, or different prompts. [baseline_001]",baseline_001,baseline_001,baseline_001,4.970613624999999,1.0,1.0,1.0,1.0,0.4375,1.0,0.7,0.43333333333333335,0.6275

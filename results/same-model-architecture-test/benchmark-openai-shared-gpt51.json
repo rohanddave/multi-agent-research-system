@@ -1,0 +1,370 @@
+{
+  "metadata": {
+    "llm_provider": "openai",
+    "models": {
+      "default": "gpt-5.1",
+      "single": "gpt-5.1",
+      "summarizer": "gpt-5.1",
+      "orchestrator": "gpt-5.1",
+      "fact_checker": "gpt-5.1"
+    },
+    "num_questions": 5
+  },
+  "summary": {
+    "single": {
+      "citation_coverage": 1.0,
+      "retrieval_recall": 0.7,
+      "citation_precision": 1.0,
+      "citation_recall": 0.7,
+      "claim_support": 0.3449272901639911,
+      "unsupported_claim_rate": 0.7666666666666667,
+      "reference_overlap": 0.75800983436853,
+      "answer_conciseness": 0.801965811965812,
+      "overall": 0.6072540915731709,
+      "latency_seconds": 1.9564513004000013
+    },
+    "multi": {
+      "citation_coverage": 1.0,
+      "retrieval_recall": 1.0,
+      "citation_precision": 0.9333333333333333,
+      "citation_recall": 1.0,
+      "claim_support": 0.39514330709144363,
+      "unsupported_claim_rate": 0.55,
+      "reference_overlap": 0.8124249482401656,
+      "answer_conciseness": 0.7567525252525252,
+      "overall": 0.7181803177329885,
+      "latency_seconds": 13.078390525
+    }
+  },
+  "examples": {
+    "single": [
+      {
+        "id": "q1",
+        "question": "How does retrieval augmented generation reduce hallucination?",
+        "answer": "Retrieval augmented generation (RAG) reduces hallucination by grounding the model\u2019s responses in retrieved external documents rather than relying solely on what is stored in its internal parameters. By conditioning generation on relevant source texts and allowing the model to cite those documents as evidence, RAG constrains answers to information actually found in the retrieved material, which lowers the chance of fabricated or unsupported content. [rag_001]",
+        "citations": [
+          "rag_001"
+        ],
+        "retrieved_sources": [
+          "rag_001"
+        ],
+        "expected_sources": [
+          "rag_001",
+          "rag_002"
+        ],
+        "supported_claims": [],
+        "unsupported_claims": [],
+        "latency_seconds": 2.001722625,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 0.5,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "claim_support": 0.45424836601307195,
+          "unsupported_claim_rate": 0.5,
+          "reference_overlap": 0.65625,
+          "answer_conciseness": 0.7444444444444445,
+          "overall": 0.6220996732026144,
+          "latency_seconds": 2.001722625
+        }
+      },
+      {
+        "id": "q2",
+        "question": "Why might specialized agents improve research assistant quality?",
+        "answer": "Specialized agents can improve research assistant quality because dividing the workflow into focused roles (like search, synthesis, planning, and verification) makes each step more transparent and inspectable. With clearer intermediate outputs, it\u2019s easier to spot errors, assess reasoning at each stage, and correct problems early, which raises overall reliability and quality of the final research output. [agents_001]",
+        "citations": [
+          "agents_001"
+        ],
+        "retrieved_sources": [
+          "agents_001"
+        ],
+        "expected_sources": [
+          "agents_001",
+          "tools_001"
+        ],
+        "supported_claims": [],
+        "unsupported_claims": [],
+        "latency_seconds": 1.1546125419999997,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 0.5,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "claim_support": 0.33620689655172414,
+          "unsupported_claim_rate": 0.5,
+          "reference_overlap": 0.8095238095238095,
+          "answer_conciseness": 0.6555555555555556,
+          "overall": 0.6291461412151067,
+          "latency_seconds": 1.1546125419999997
+        }
+      },
+      {
+        "id": "q3",
+        "question": "What are risks of multi-agent research systems?",
+        "answer": "Risks of multi\u2011agent research systems include:\n\n1. **Coordination overhead**  \n   - Extra complexity in managing workflows between agents.  \n   - More time and resources spent passing information, aligning roles, and resolving conflicts between agents.  \n   - This can reduce efficiency compared with a well\u2011designed single\u2011agent system. [agents_002]\n\n2. **Error propagation**  \n   - If an early agent (e.g., search or initial summarizer) makes a mistake\u2014misses key sources, misinterprets evidence, or introduces bias\u2014that error is passed to all downstream agents.  \n   - Later agents often treat upstream outputs as ground truth, amplifying the initial error and making it harder to detect and correct. [agents_002]",
+        "citations": [
+          "agents_002"
+        ],
+        "retrieved_sources": [
+          "agents_002"
+        ],
+        "expected_sources": [
+          "agents_002"
+        ],
+        "supported_claims": [],
+        "unsupported_claims": [],
+        "latency_seconds": 2.458773083999999,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 1.0,
+          "claim_support": 0.27246414186069357,
+          "unsupported_claim_rate": 1.0,
+          "reference_overlap": 0.7916666666666666,
+          "answer_conciseness": 0.8999999999999999,
+          "overall": 0.612826161705472,
+          "latency_seconds": 2.458773083999999
+        }
+      },
+      {
+        "id": "q4",
+        "question": "How should the project evaluate factual accuracy?",
+        "answer": "The project should evaluate factual accuracy using a combination of:\n\n1. **Automatic metrics**  \n   - Citation checks (does the answer correctly cite supporting sources).  \n   - Claim verification against trusted references.  \n   - Reference overlap (how well the answer aligns with known ground\u2011truth documents).  \n\n2. **Human judgment**  \n   - Expert or trained annotators review key answers for correctness, nuance, and completeness, since automatic metrics are only partial proxies for true answer quality.  \n\nIn practice, use automatic metrics for scale and consistency, and human evaluation for depth and validation of the automated signals, recognizing that each individual method is an incomplete proxy and works best in combination with the others. [eval_001]",
+        "citations": [
+          "eval_001"
+        ],
+        "retrieved_sources": [
+          "eval_001"
+        ],
+        "expected_sources": [
+          "eval_001",
+          "eval_002"
+        ],
+        "supported_claims": [],
+        "unsupported_claims": [],
+        "latency_seconds": 2.0777662089999964,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 0.5,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "claim_support": 0.31043499511241446,
+          "unsupported_claim_rate": 0.8333333333333334,
+          "reference_overlap": 0.782608695652174,
+          "answer_conciseness": 0.8653846153846154,
+          "overall": 0.551942071486251,
+          "latency_seconds": 2.0777662089999964
+        }
+      },
+      {
+        "id": "q5",
+        "question": "Why compare against a single-agent baseline?",
+        "answer": "Compare against a single-agent baseline to isolate *where* improvements are coming from. If a multi-agent system performs better, the baseline helps you check whether the gain is due to:\n\n- true **agent specialization and coordination**, versus  \n- simply having **more context**, **more retrieval**, or **different prompts**.\n\nWithout this baseline, you can\u2019t tell if multi-agent design is actually beneficial, or if the same gains could be achieved by a well-designed single agent. [baseline_001]",
+        "citations": [
+          "baseline_001"
+        ],
+        "retrieved_sources": [
+          "baseline_001"
+        ],
+        "expected_sources": [
+          "baseline_001"
+        ],
+        "supported_claims": [],
+        "unsupported_claims": [],
+        "latency_seconds": 2.089382042000011,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 1.0,
+          "claim_support": 0.3512820512820513,
+          "unsupported_claim_rate": 1.0,
+          "reference_overlap": 0.75,
+          "answer_conciseness": 0.8444444444444444,
+          "overall": 0.6202564102564103,
+          "latency_seconds": 2.089382042000011
+        }
+      }
+    ],
+    "multi": [
+      {
+        "id": "q1",
+        "question": "How does retrieval augmented generation reduce hallucination?",
+        "answer": "Retrieval augmented generation (RAG) reduces hallucination by \u201cgrounding\u201d the model\u2019s answers in external documents that are retrieved at query time, so the model can base and cite its responses on this evidence instead of relying only on its internal parametric memory.[rag_001] Because the answer is conditioned on concrete retrieved texts, the model is less likely to invent unsupported facts.[rag_001]  \n\nHowever, RAG does not eliminate hallucinations: if the retrieval step returns irrelevant or incomplete documents, the generator may still produce incomplete answers or unsupported claims based on that poor evidence.[rag_002]",
+        "citations": [
+          "rag_001",
+          "rag_002"
+        ],
+        "retrieved_sources": [
+          "rag_001",
+          "rag_002"
+        ],
+        "expected_sources": [
+          "rag_001",
+          "rag_002"
+        ],
+        "supported_claims": [
+          "Retrieval augmented generation (RAG) reduces hallucination by \u201cgrounding\u201d the model\u2019s answers in external documents that are retrieved at query time, so the model can base and cite its responses on this evidence instead of relying only on its internal parametric memory. Because the answer is conditioned on concrete retrieved texts, the model is less likely to invent unsupported facts.  \n\nHowever, RAG does not eliminate hallucinations: if the retrieval step returns irrelevant or incomplete documents, the generator may still produce incomplete answers or unsupported claims based on that poor evidence."
+        ],
+        "unsupported_claims": [],
+        "latency_seconds": 5.223897292,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 1.0,
+          "claim_support": 0.5294117647058824,
+          "unsupported_claim_rate": 0.0,
+          "reference_overlap": 0.84375,
+          "answer_conciseness": 0.9375,
+          "overall": 0.8746323529411765,
+          "latency_seconds": 5.223897292
+        }
+      },
+      {
+        "id": "q2",
+        "question": "Why might specialized agents improve research assistant quality?",
+        "answer": "Specialized agents can improve research assistant quality by breaking a complex task into focused roles such as search, synthesis, planning, and verification, making each step\u2019s intermediate output easier to inspect and debug, which improves traceability and control over the reasoning process.[agents_001] When these specialized roles are combined with recorded tool outputs (for search, retrieval, summarization, and citation management), the resulting workflow becomes more auditable and accountable, since every tool call and agent decision can be revisited and checked.[agents_001][tools_001] Comparing such multi-agent systems against single-agent baselines is also crucial; it helps confirm that any observed quality improvements actually come from specialization itself rather than from side benefits like extra context, more retrieval, or different prompts.[baseline_001]",
+        "citations": [
+          "agents_001",
+          "baseline_001",
+          "tools_001"
+        ],
+        "retrieved_sources": [
+          "agents_001",
+          "baseline_001",
+          "tools_001"
+        ],
+        "expected_sources": [
+          "agents_001",
+          "tools_001"
+        ],
+        "supported_claims": [
+          "Specialized agents can improve research assistant quality by breaking a complex task into focused roles such as search, synthesis, planning, and verification, making each step\u2019s intermediate output easier to inspect and debug, which improves traceability and control over the reasoning process. When these specialized roles are combined with recorded tool outputs (for search, retrieval, summarization, and citation management), the resulting workflow becomes more auditable and accountable, since every tool call and agent decision can be revisited and checked. Comparing such multi-agent systems against single-agent baselines is also crucial; it helps confirm that any observed quality improvements actually come from specialization itself rather than from side benefits like extra context, more retrieval, or different prompts."
+        ],
+        "unsupported_claims": [],
+        "latency_seconds": 6.753117790999999,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 1.0,
+          "citation_precision": 0.6666666666666666,
+          "citation_recall": 1.0,
+          "claim_support": 0.46938775510204084,
+          "unsupported_claim_rate": 0.0,
+          "reference_overlap": 0.8571428571428571,
+          "answer_conciseness": 0.72,
+          "overall": 0.7986394557823129,
+          "latency_seconds": 6.753117790999999
+        }
+      },
+      {
+        "id": "q3",
+        "question": "What are risks of multi-agent research systems?",
+        "answer": "Multi-agent research systems carry at least two key risks:\n\n1. **Coordination overhead and complexity** \u2013 Having multiple agents interact can introduce extra coordination steps, which can increase system complexity and reduce efficiency. [agents_002]\n\n2. **Error propagation** \u2013 If an early agent (e.g., search or summarization) makes a mistake, that error can propagate through all downstream agents, degrading the quality of the final output. [agents_002]",
+        "citations": [
+          "agents_002"
+        ],
+        "retrieved_sources": [
+          "agents_002"
+        ],
+        "expected_sources": [
+          "agents_002"
+        ],
+        "supported_claims": [
+          "Multi-agent research systems carry at least two key risks: coordination overhead and complexity, and error propagation.",
+          "Coordination overhead and complexity \u2013 Having multiple agents interact can introduce extra coordination steps, which can increase system complexity and reduce efficiency.",
+          "Error propagation \u2013 If an early agent (e.g., search or summarization) makes a mistake, that error can propagate through all downstream agents, degrading the quality of the final output."
+        ],
+        "unsupported_claims": [],
+        "latency_seconds": 16.045587291999997,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 1.0,
+          "claim_support": 0.3443586188684228,
+          "unsupported_claim_rate": 1.0,
+          "reference_overlap": 0.7916666666666666,
+          "answer_conciseness": 0.7333333333333333,
+          "overall": 0.6272050571070179,
+          "latency_seconds": 16.045587291999997
+        }
+      },
+      {
+        "id": "q4",
+        "question": "How should the project evaluate factual accuracy?",
+        "answer": "The project should use a hybrid evaluation setup that combines automatic metrics with structured human review.  \n\n1. **Automatic factuality metrics**  \n   - Run **citation checks** to verify that claims are backed by cited sources.  \n   - Apply **claim verification** and **reference overlap** measures to see whether answers align with available evidence.  \n   - Treat these as **useful but incomplete proxies** for overall answer quality, not as sufficient on their own. [eval_001]\n\n2. **Human evaluation**  \n   - Have human evaluators rate:  \n     - **Factual correctness** of each claim.  \n     - **Completeness** of the answer relative to the question.  \n     - **Clarity** of the explanation.  \n     - Whether **each citation genuinely supports the specific claim** it is attached to. [eval_002]  \n\nBy combining these, the project can quantify factuality with automatic tools while relying on human judgment to capture nuances and gaps the metrics miss. [eval_001][eval_002]",
+        "citations": [
+          "eval_001",
+          "eval_002"
+        ],
+        "retrieved_sources": [
+          "eval_001",
+          "eval_002"
+        ],
+        "expected_sources": [
+          "eval_001",
+          "eval_002"
+        ],
+        "supported_claims": [
+          "The project should use a hybrid evaluation setup that combines automatic metrics with structured human review.",
+          "Automatic factuality metrics",
+          "Apply claim verification and reference overlap measures to see whether answers align with available evidence.",
+          "Treat these as useful but incomplete proxies for overall answer quality, not as sufficient on their own.",
+          "Human evaluation",
+          "Completeness of the answer relative to the question.",
+          "Whether each citation genuinely supports the specific claim it is attached to.",
+          "By combining these, the project can quantify factuality with automatic tools while relying on human judgment to capture nuances and gaps the metrics miss."
+        ],
+        "unsupported_claims": [],
+        "latency_seconds": 32.83110520900001,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 1.0,
+          "claim_support": 0.4201928053830228,
+          "unsupported_claim_rate": 0.75,
+          "reference_overlap": 0.8695652173913043,
+          "answer_conciseness": 0.6818181818181819,
+          "overall": 0.7079516045548654,
+          "latency_seconds": 32.83110520900001
+        }
+      },
+      {
+        "id": "q5",
+        "question": "Why compare against a single-agent baseline?",
+        "answer": "A single-agent baseline is used to ensure that any performance improvements are genuinely due to agent specialization, and not just side effects of giving the system more context, more retrieval, or different prompts. By comparing against this baseline, we can attribute gains specifically to the multi-agent design rather than these confounding factors. [baseline_001] Fact-check note: some claims need stronger evidence.",
+        "citations": [
+          "baseline_001"
+        ],
+        "retrieved_sources": [
+          "baseline_001"
+        ],
+        "expected_sources": [
+          "baseline_001"
+        ],
+        "supported_claims": [
+          "A single-agent baseline is used to ensure that any performance improvements are genuinely due to agent specialization, and not just side effects of giving the system more context, more retrieval, or different prompts."
+        ],
+        "unsupported_claims": [
+          "By comparing against this baseline, we can attribute gains specifically to the multi-agent design rather than these confounding factors."
+        ],
+        "latency_seconds": 4.538245040999996,
+        "scores": {
+          "citation_coverage": 1.0,
+          "retrieval_recall": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 1.0,
+          "claim_support": 0.21236559139784947,
+          "unsupported_claim_rate": 1.0,
+          "reference_overlap": 0.7,
+          "answer_conciseness": 0.7111111111111111,
+          "overall": 0.5824731182795699,
+          "latency_seconds": 4.538245040999996
+        }
+      }
+    ]
+  }
+}

@@ -31,6 +31,20 @@ STOPWORDS = {
     "why",
     "with",
 }
+TOKEN_EXPANSIONS = {
+    "accuracy": ["factuality", "correctness", "evaluation"],
+    "accurate": ["factual", "correct"],
+    "assistant": ["assistants"],
+    "assistants": ["assistant"],
+    "evaluate": ["evaluation", "evaluating", "metrics"],
+    "evaluating": ["evaluate", "evaluation", "metrics"],
+    "evaluation": ["evaluate", "evaluating", "metrics"],
+    "fact": ["factuality", "verification"],
+    "factual": ["factuality", "accuracy"],
+    "factuality": ["factual", "accuracy"],
+    "specialized": ["specialization"],
+    "specialization": ["specialized"],
+}
 
 
 def tokenize(text: str) -> list[str]:
@@ -44,6 +58,7 @@ def content_tokens(text: str) -> list[str]:
         expanded.append(token)
         if token == "rag":
             expanded.extend(["retrieval", "augmented", "generation"])
+        expanded.extend(TOKEN_EXPANSIONS.get(token, []))
     return expanded
 
 

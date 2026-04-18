@@ -13,7 +13,7 @@ class SearchAgent:
     def __init__(self, corpus: list[Document]):
         self.corpus = corpus
 
-    def search(self, question: str, top_k: int = 3) -> list[Evidence]:
+    def search(self, question: str, top_k: int = 3, min_score_ratio: float = 0.4) -> list[Evidence]:
         query_terms = Counter(content_tokens(question))
         scored = []
         for doc in self.corpus:
@@ -25,7 +25,7 @@ class SearchAgent:
         ranked = sorted(scored, key=lambda item: item.score, reverse=True)
         if not ranked:
             return []
-        cutoff = ranked[0].score * 0.4
+        cutoff = ranked[0].score * min_score_ratio
         return [item for item in ranked if item.score >= cutoff][:top_k]
 
 
@@ -128,7 +128,7 @@ class SingleAgentBaseline:
         self.llm = llm
 
     def answer(self, question: str) -> ResearchAnswer:
-        evidence = self.search_agent.search(question, top_k=2)
+        evidence = self.search_agent.search(question, top_k=1, min_score_ratio=0.8)
         if not evidence:
             return ResearchAnswer(
                 question=question,
