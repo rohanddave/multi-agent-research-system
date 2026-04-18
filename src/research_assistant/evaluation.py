@@ -3,7 +3,10 @@ from __future__ import annotations
 from statistics import mean
 
 from .models import ResearchAnswer
-from .utils import extract_claims, tokenize
+from .utils import content_tokens, extract_claims, tokenize
+
+
+CLAIM_SUPPORT_THRESHOLD = 0.28
 
 
 def citation_coverage(answer: ResearchAnswer) -> float:
@@ -29,19 +32,23 @@ def claim_support_breakdown(answer: ResearchAnswer) -> dict[str, float | int]:
             "unsupported_claim_rate": 0.0,
         }
 
-    evidence_tokens = set()
-    for item in answer.evidence:
-        evidence_tokens.update(tokenize(item.document.text))
+    evidence_token_sets = [set(content_tokens(item.document.text)) for item in answer.evidence]
 
     scores = []
     unsupported = 0
     for claim in claims:
-        claim_tokens = set(tokenize(claim))
+        claim_tokens = set(content_tokens(claim))
         if not claim_tokens:
             continue
-        score = len(claim_tokens & evidence_tokens) / len(claim_tokens)
+        if not evidence_token_sets:
+            score = 0.0
+        else:
+            score = max(
+                len(claim_tokens & evidence_tokens) / len(claim_tokens)
+                for evidence_tokens in evidence_token_sets
+            )
         scores.append(score)
-        if score < 0.45:
+        if score < CLAIM_SUPPORT_THRESHOLD:
             unsupported += 1
 
     supported = max(0, len(scores) - unsupported)
@@ -95,6 +102,10 @@ def answer_conciseness(answer_text: str, target_words: int = 90) -> float:
     return min(ratio, 1 / ratio)
 
 
+def answer_word_count(answer_text: str) -> int:
+    return len(tokenize(answer_text))
+
+
 def evaluate_answer(
     answer: ResearchAnswer,
     reference_answer: str,
@@ -111,6 +122,7 @@ def evaluate_answer(
         "unsupported_claim_rate": float(support["unsupported_claim_rate"]),
         "reference_overlap": reference_overlap(answer.answer, reference_answer),
         "answer_conciseness": answer_conciseness(answer.answer),
+        "answer_word_count": float(answer_word_count(answer.answer)),
     }
     scores["overall"] = mean(
         [

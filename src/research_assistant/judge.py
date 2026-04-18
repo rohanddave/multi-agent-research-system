@@ -44,6 +44,8 @@ class LLMJudge:
                 "You are an impartial evaluator for a research assistant benchmark. "
                 "Score the candidate answer using only the question, reference answer, "
                 "expected source ids, and evidence. Do not infer which system produced it. "
+                "Use the full 1-5 scale. Be strict: reserve 5 for answers with no meaningful "
+                "omissions, no unsupported claims, and citations that cover the expected sources. "
                 "Return only valid JSON."
             ),
             user=self._build_prompt(question, answer, reference_answer, evidence, expected_sources),
@@ -75,7 +77,20 @@ Candidate answer:
 {answer}
 
 Rubric:
-Score each item from 1 to 5, where 1 is poor, 3 is acceptable, and 5 is excellent.
+Score each item from 1 to 5. Use the full scale:
+- 1 = poor or mostly wrong.
+- 2 = weak; important errors, omissions, or unsupported claims.
+- 3 = acceptable but incomplete or only partly grounded.
+- 4 = good; minor omissions or citation weaknesses.
+- 5 = excellent; complete, directly grounded, and citation-supported.
+
+Important scoring rules:
+- Penalize completeness when the answer misses important points from the reference answer.
+- Penalize citation_usefulness when expected source ids are missing from citations or citations do not support nearby claims.
+- Penalize grounding when the answer adds claims not directly supported by the evidence.
+- Do not give a 5 for overall unless correctness, completeness, grounding, and citation usefulness are all near-perfect.
+
+Criteria:
 - correctness: factual accuracy relative to the evidence and reference answer.
 - completeness: coverage of important points needed to answer the question.
 - grounding: whether claims are supported by the provided evidence.
